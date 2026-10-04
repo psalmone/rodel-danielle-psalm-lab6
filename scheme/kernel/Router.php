@@ -430,6 +430,7 @@ class Router
      */
     public function initiate($url, $method)
     {
+        error_log("ROUTER INITIATE: url='$url', method='$method'");
         if (empty($url)) {
             $url = '/';
         }

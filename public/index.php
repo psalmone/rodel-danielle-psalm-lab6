@@ -1,4 +1,13 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+error_log("DEBUG: SCRIPT_NAME=" . ($_SERVER['SCRIPT_NAME'] ?? '') . " REQUEST_URI=" . ($_SERVER['REQUEST_URI'] ?? ''));
+if (PHP_SAPI === 'cli-server') {
+    $file = __DIR__ . parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH);
+    if (is_file($file) && basename($file) !== 'index.php') {
+        return false;
+    }
+}
 define('PREVENT_DIRECT_ACCESS', TRUE);
 /**
  * ------------------------------------------------------------------

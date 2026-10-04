@@ -381,6 +381,18 @@ class Api
     }
 
     /**
+     * response (alias for respond)
+     *
+     * @param mixed $data
+     * @param integer $code
+     * @return void
+     */
+    public function response($data, $code = 200)
+    {
+        $this->respond($data, $code);
+    }
+
+    /**
      * respond_error
      *
      * @param string $message
