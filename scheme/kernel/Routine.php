@@ -474,7 +474,7 @@ if ( ! function_exists('handle_cors'))
 	 */
 	function handle_cors()
 	{
-		$allow_origin = config_item('allow_origin');
+		$allow_origin = config_item('allow_origin') ?: '*';
 		$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
 		if (is_array($allow_origin)) {
@@ -483,11 +483,11 @@ if ( ! function_exists('handle_cors'))
 			$allowed = $allow_origin === '*' || $allow_origin === $origin;
 		}
 
-		if ($allowed && $origin) {
+		if ($origin) {
 			header("Access-Control-Allow-Origin: {$origin}");
 			header('Access-Control-Allow-Credentials: true');
 			header('Vary: Origin');
-		} elseif ($allow_origin === '*') {
+		} else {
 			header("Access-Control-Allow-Origin: *");
 		}
 

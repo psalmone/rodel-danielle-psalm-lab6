@@ -1,4 +1,25 @@
 <?php
+// Universal CORS handler
+if (isset($_SERVER['HTTP_ORIGIN'])) {
+    header("Access-Control-Allow-Origin: {$_SERVER['HTTP_ORIGIN']}");
+    header('Access-Control-Allow-Credentials: true');
+    header('Access-Control-Max-Age: 86400');
+    header('Vary: Origin');
+} else {
+    header('Access-Control-Allow-Origin: *');
+}
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
+    header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    if (isset($_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS'])) {
+        header("Access-Control-Allow-Headers: {$_SERVER['HTTP_ACCESS_CONTROL_REQUEST_HEADERS']}");
+    } else {
+        header('Access-Control-Allow-Headers: Authorization, Content-Type, X-Requested-With, X-RateLimit-*');
+    }
+    http_response_code(204);
+    exit(0);
+}
+
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 error_log("DEBUG: SCRIPT_NAME=" . ($_SERVER['SCRIPT_NAME'] ?? '') . " REQUEST_URI=" . ($_SERVER['REQUEST_URI'] ?? ''));
