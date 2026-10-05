@@ -1,4 +1,22 @@
 import { useState, useEffect, useCallback } from 'react';
+import {
+  Package,
+  Plus,
+  Pencil,
+  Trash2,
+  LogOut,
+  Search,
+  CircleCheck,
+  CircleAlert,
+  CircleX,
+  Info,
+  Coins,
+  TrendingUp,
+  Layers,
+  LogIn,
+  X,
+  PackageOpen
+} from 'lucide-react';
 import api from './api';
 import './index.css';
 
@@ -8,8 +26,10 @@ function Toast({ toasts }) {
     <div className="toast-container">
       {toasts.map(t => (
         <div key={t.id} className={`toast ${t.type}`}>
-          <span>{t.type === 'success' ? '✓' : t.type === 'error' ? '✕' : 'ℹ'}</span>
-          {t.msg}
+          {t.type === 'success' && <CircleCheck size={18} />}
+          {t.type === 'error' && <CircleX size={18} />}
+          {t.type === 'info' && <Info size={18} />}
+          <span>{t.msg}</span>
         </div>
       ))}
     </div>
@@ -29,15 +49,24 @@ function useToast() {
 /* ── Confirm Dialog ─────────────────────────────── */
 function ConfirmDialog({ title, text, onConfirm, onCancel, loading }) {
   return (
-    <div className="modal-overlay confirm-dialog">
+    <div className="modal-overlay confirm-dialog" onClick={e => e.target === e.currentTarget && onCancel()}>
       <div className="modal">
-        <div className="confirm-icon">🗑️</div>
+        <div className="confirm-icon">
+          <Trash2 size={24} />
+        </div>
         <div className="confirm-title">{title}</div>
         <div className="confirm-text">{text}</div>
         <div className="confirm-actions">
-          <button className="btn btn-ghost" onClick={onCancel} disabled={loading}>Cancel</button>
+          <button className="btn btn-ghost" onClick={onCancel} disabled={loading}>
+            Cancel
+          </button>
           <button className="btn btn-danger" onClick={onConfirm} disabled={loading}>
-            {loading ? <span className="spinner" /> : 'Delete'}
+            {loading ? <span className="spinner" /> : (
+              <>
+                <Trash2 size={16} />
+                <span>Delete</span>
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -62,15 +91,18 @@ function ProductModal({ product, onClose, onSaved, push }) {
   const submit = async (e) => {
     e.preventDefault();
     setError('');
-    if (!form.product_name.trim()) { setError('Product name is required.'); return; }
+    if (!form.product_name.trim()) {
+      setError('Product name is required.');
+      return;
+    }
     setLoading(true);
     try {
       if (isEdit) {
         await api.put(`/products/update/${product.id}`, form);
-        push('Product updated!', 'success');
+        push('Product updated successfully!', 'success');
       } else {
         await api.post('/products/store', form);
-        push('Product added!', 'success');
+        push('Product added successfully!', 'success');
       }
       onSaved();
       onClose();
@@ -85,31 +117,80 @@ function ProductModal({ product, onClose, onSaved, push }) {
     <div className="modal-overlay" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <h2 className="modal-title">{isEdit ? '✏️ Edit Product' : '➕ Add Product'}</h2>
-          <button className="btn-icon" onClick={onClose}>✕</button>
+          <h2 className="modal-title">
+            {isEdit ? <Pencil size={20} className="text-primary" /> : <Plus size={20} className="text-primary" />}
+            <span>{isEdit ? 'Edit Product' : 'Add Product'}</span>
+          </h2>
+          <button className="btn-icon" onClick={onClose} aria-label="Close modal">
+            <X size={18} />
+          </button>
         </div>
-        {error && <div className="alert alert-error">⚠ {error}</div>}
+
+        {error && (
+          <div className="alert alert-error">
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        )}
+
         <form onSubmit={submit}>
           <div className="form-group">
             <label className="form-label">Product Name *</label>
-            <input id="field-product-name" className="form-input" value={form.product_name} onChange={set('product_name')} placeholder="e.g. Wireless Headphones" required />
+            <input
+              id="field-product-name"
+              className="form-input"
+              value={form.product_name}
+              onChange={set('product_name')}
+              placeholder="e.g. Wireless Noise-Cancelling Headphones"
+              required
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Description</label>
-            <input id="field-description" className="form-input" value={form.description} onChange={set('description')} placeholder="Brief description" />
+            <input
+              id="field-description"
+              className="form-input"
+              value={form.description}
+              onChange={set('description')}
+              placeholder="Brief description of product features"
+            />
           </div>
           <div className="form-group">
-            <label className="form-label">Price (₱)</label>
-            <input id="field-price" className="form-input" type="number" step="0.01" min="0" value={form.price} onChange={set('price')} placeholder="0.00" />
+            <label className="form-label">Price (PHP)</label>
+            <input
+              id="field-price"
+              className="form-input"
+              type="number"
+              step="0.01"
+              min="0"
+              value={form.price}
+              onChange={set('price')}
+              placeholder="0.00"
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Quantity</label>
-            <input id="field-quantity" className="form-input" type="number" min="0" value={form.quantity} onChange={set('quantity')} placeholder="0" />
+            <input
+              id="field-quantity"
+              className="form-input"
+              type="number"
+              min="0"
+              value={form.quantity}
+              onChange={set('quantity')}
+              placeholder="0"
+            />
           </div>
           <div className="modal-footer">
-            <button type="button" className="btn btn-ghost" onClick={onClose} disabled={loading}>Cancel</button>
+            <button type="button" className="btn btn-ghost" onClick={onClose} disabled={loading}>
+              Cancel
+            </button>
             <button id="btn-save-product" type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? <span className="spinner" /> : (isEdit ? 'Save Changes' : 'Add Product')}
+              {loading ? <span className="spinner" /> : (
+                <>
+                  {isEdit ? <Pencil size={16} /> : <Plus size={16} />}
+                  <span>{isEdit ? 'Save Changes' : 'Add Product'}</span>
+                </>
+              )}
             </button>
           </div>
         </form>
@@ -139,9 +220,9 @@ function LoginPage({ onLogin, push }) {
       onLogin(data.data.user);
     } catch (err) {
       if (!err.response) {
-        setError('Cannot connect to backend API server. Check if Render is active or your internet.');
+        setError('Cannot connect to backend API. Please verify the server is live.');
       } else if (err.response.status === 404 || err.response.status === 405) {
-        setError(`API error (${err.response.status}): VITE_API_URL is not reaching the Render backend.`);
+        setError(`API error (${err.response.status}): VITE_API_URL is not reaching the backend.`);
       } else {
         setError(err.response?.data?.message || 'Invalid email or password.');
       }
@@ -154,33 +235,65 @@ function LoginPage({ onLogin, push }) {
     <div className="login-page">
       <div className="login-card">
         <div className="login-logo">
-          <div className="login-logo-icon">📦</div>
+          <div className="login-logo-icon">
+            <Package size={22} />
+          </div>
           <h1>ProductManager</h1>
         </div>
-        <p className="login-sub">Sign in to manage your product catalog</p>
-        {error && <div className="alert alert-error">⚠ {error}</div>}
+        <p className="login-sub">Sign in to manage your inventory catalog</p>
+
+        {error && (
+          <div className="alert alert-error">
+            <CircleAlert size={18} />
+            <span>{error}</span>
+          </div>
+        )}
+
         <form onSubmit={submit}>
           <div className="form-group">
             <label className="form-label">Email</label>
-            <input id="login-email" className="form-input" type="email" value={form.email} onChange={set('email')} placeholder="admin@lab6.com" required autoFocus />
+            <input
+              id="login-email"
+              className="form-input"
+              type="email"
+              value={form.email}
+              onChange={set('email')}
+              placeholder="admin@lab6.com"
+              required
+              autoFocus
+            />
           </div>
           <div className="form-group">
             <label className="form-label">Password</label>
-            <input id="login-password" className="form-input" type="password" value={form.password} onChange={set('password')} placeholder="••••••••" required />
+            <input
+              id="login-password"
+              className="form-input"
+              type="password"
+              value={form.password}
+              onChange={set('password')}
+              placeholder="••••••••"
+              required
+            />
           </div>
           <button id="btn-login" type="submit" className="btn btn-primary btn-full" disabled={loading} style={{ marginTop: 8 }}>
-            {loading ? <span className="spinner" /> : '🔐 Sign In'}
+            {loading ? <span className="spinner" /> : (
+              <>
+                <LogIn size={18} />
+                <span>Sign In</span>
+              </>
+            )}
           </button>
         </form>
-        <p style={{ marginTop: 20, fontSize: 13, color: 'var(--text3)', textAlign: 'center' }}>
-          Default: <code style={{ color: 'var(--text2)' }}>admin@lab6.com</code> / <code style={{ color: 'var(--text2)' }}>Admin@123</code>
-        </p>
+
+        <div className="default-credentials">
+          Default: <code>admin@lab6.com</code> / <code>Admin@123</code>
+        </div>
       </div>
     </div>
   );
 }
 
-/* ── Dashboard / Products Page ──────────────────── */
+/* ── Dashboard Page ─────────────────────────────── */
 function DashboardPage({ user, onLogout, push }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -201,12 +314,18 @@ function DashboardPage({ user, onLogout, push }) {
     }
   }, [push]);
 
-  useEffect(() => { fetchProducts(); }, [fetchProducts]);
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleLogout = async () => {
-    try { await api.post('/auth/logout'); } catch { /* ignore */ }
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      /* ignore */
+    }
     localStorage.clear();
-    push('Logged out.', 'info');
+    push('Logged out successfully.', 'info');
     onLogout();
   };
 
@@ -237,16 +356,19 @@ function DashboardPage({ user, onLogout, push }) {
       {/* Navbar */}
       <nav className="navbar">
         <div className="navbar-brand">
-          <div className="navbar-brand-icon">📦</div>
-          ProductManager
+          <div className="navbar-brand-icon">
+            <Package size={20} />
+          </div>
+          <span>ProductManager</span>
         </div>
         <div className="navbar-right">
           <div className="navbar-user">
             <div className="avatar">{user?.username?.[0]?.toUpperCase()}</div>
-            <span style={{ fontSize: 14, color: 'var(--text)' }}>{user?.username}</span>
+            <span style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--text-main)' }}>{user?.username}</span>
           </div>
-          <button id="btn-logout" className="btn btn-ghost" onClick={handleLogout} style={{ fontSize: 13 }}>
-            🚪 Logout
+          <button id="btn-logout" className="btn btn-ghost" onClick={handleLogout} style={{ fontSize: 13, padding: '7px 14px' }}>
+            <LogOut size={15} />
+            <span>Logout</span>
           </button>
         </div>
       </nav>
@@ -256,38 +378,47 @@ function DashboardPage({ user, onLogout, push }) {
         <div className="page-header">
           <div>
             <h2 className="page-title">Products</h2>
-            <p className="page-subtitle">Manage your product catalog</p>
+            <p className="page-subtitle">Manage inventory and catalog items</p>
           </div>
           <button id="btn-add-product" className="btn btn-primary" onClick={() => setModal('add')}>
-            ➕ Add Product
+            <Plus size={18} />
+            <span>Add Product</span>
           </button>
         </div>
 
         {/* Stats */}
         <div className="stats-row">
           <div className="stat-card">
-            <div className="stat-icon purple">📦</div>
+            <div className="stat-icon pastel-mint">
+              <Package size={22} />
+            </div>
             <div>
               <div className="stat-value">{products.length}</div>
               <div className="stat-label">Total Products</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon green">💰</div>
+            <div className="stat-icon pastel-sage">
+              <Coins size={22} />
+            </div>
             <div>
               <div className="stat-value">₱{totalValue.toLocaleString('en-PH', { minimumFractionDigits: 2 })}</div>
               <div className="stat-label">Total Value</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon amber">📊</div>
+            <div className="stat-icon pastel-olive">
+              <TrendingUp size={22} />
+            </div>
             <div>
               <div className="stat-value">₱{avgPrice.toFixed(2)}</div>
               <div className="stat-label">Avg. Price</div>
             </div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon red">🔍</div>
+            <div className="stat-icon pastel-teal">
+              <Layers size={22} />
+            </div>
             <div>
               <div className="stat-value">{filtered.length}</div>
               <div className="stat-label">Showing</div>
@@ -298,7 +429,9 @@ function DashboardPage({ user, onLogout, push }) {
         {/* Toolbar */}
         <div className="toolbar">
           <div className="search-wrap">
-            <span className="search-icon">🔍</span>
+            <span className="search-icon-inside">
+              <Search size={16} />
+            </span>
             <input
               id="search-products"
               className="search-input"
@@ -313,44 +446,66 @@ function DashboardPage({ user, onLogout, push }) {
         <div className="table-wrap">
           {loading ? (
             <div className="empty-state">
-              <div className="spinner" style={{ width: 36, height: 36, borderWidth: 3 }} />
+              <div className="spinner spinner-dark" style={{ width: 36, height: 36, borderWidth: 3 }} />
               <p style={{ marginTop: 16 }}>Loading products...</p>
             </div>
           ) : filtered.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">📭</div>
+              <div className="empty-state-icon">
+                {search ? <Search size={28} /> : <PackageOpen size={28} />}
+              </div>
               <h3>{search ? 'No results found' : 'No products yet'}</h3>
-              <p>{search ? 'Try a different keyword.' : 'Add your first product to get started.'}</p>
+              <p>{search ? 'Try searching with a different keyword.' : 'Add your first product to get started.'}</p>
             </div>
           ) : (
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>#</th>
+                  <th style={{ width: 48 }}>#</th>
                   <th>Product</th>
                   <th>Price</th>
                   <th>Qty</th>
                   <th>Added</th>
-                  <th>Actions</th>
+                  <th style={{ width: 100 }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filtered.map((p, i) => (
                   <tr key={p.id}>
-                    <td style={{ color: 'var(--text3)', fontSize: 13 }}>{i + 1}</td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>{i + 1}</td>
                     <td>
                       <div className="product-name">{p.product_name}</div>
                       <div className="product-desc">{p.description || '—'}</div>
                     </td>
-                    <td><span className="price-badge">₱{parseFloat(p.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}</span></td>
-                    <td><span className="qty-badge">{p.quantity}</span></td>
-                    <td style={{ color: 'var(--text3)', fontSize: 12 }}>
+                    <td>
+                      <span className="price-badge">
+                        ₱{parseFloat(p.price).toLocaleString('en-PH', { minimumFractionDigits: 2 })}
+                      </span>
+                    </td>
+                    <td>
+                      <span className="qty-badge">{p.quantity}</span>
+                    </td>
+                    <td style={{ color: 'var(--text-muted)', fontSize: 13 }}>
                       {p.created_at ? new Date(p.created_at).toLocaleDateString('en-PH', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
                     </td>
                     <td>
                       <div className="actions">
-                        <button id={`btn-edit-${p.id}`} className="btn-icon" title="Edit" onClick={() => setModal(p)}>✏️</button>
-                        <button id={`btn-delete-${p.id}`} className="btn-icon" title="Delete" onClick={() => setDeleteTarget(p)} style={{ color: 'var(--danger)' }}>🗑️</button>
+                        <button
+                          id={`btn-edit-${p.id}`}
+                          className="btn-icon"
+                          title="Edit"
+                          onClick={() => setModal(p)}
+                        >
+                          <Pencil size={15} />
+                        </button>
+                        <button
+                          id={`btn-delete-${p.id}`}
+                          className="btn-icon delete-btn"
+                          title="Delete"
+                          onClick={() => setDeleteTarget(p)}
+                        >
+                          <Trash2 size={15} />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -375,7 +530,7 @@ function DashboardPage({ user, onLogout, push }) {
       {deleteTarget && (
         <ConfirmDialog
           title="Delete Product"
-          text={`Are you sure you want to delete "${deleteTarget.product_name}"? This cannot be undone.`}
+          text={`Are you sure you want to delete "${deleteTarget.product_name}"? This action cannot be undone.`}
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
           loading={deleting}
@@ -388,7 +543,11 @@ function DashboardPage({ user, onLogout, push }) {
 /* ── App Root ────────────────────────────────────── */
 export default function App() {
   const [user, setUser] = useState(() => {
-    try { return JSON.parse(localStorage.getItem('user')); } catch { return null; }
+    try {
+      return JSON.parse(localStorage.getItem('user'));
+    } catch {
+      return null;
+    }
   });
   const { toasts, push } = useToast();
 
