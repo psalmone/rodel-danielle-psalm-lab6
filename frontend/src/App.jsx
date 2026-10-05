@@ -138,7 +138,13 @@ function LoginPage({ onLogin, push }) {
       push('Welcome back!', 'success');
       onLogin(data.data.user);
     } catch (err) {
-      setError(err.response?.data?.message || 'Invalid email or password.');
+      if (!err.response) {
+        setError('Cannot connect to backend API server. Check if Render is active or your internet.');
+      } else if (err.response.status === 404 || err.response.status === 405) {
+        setError(`API error (${err.response.status}): VITE_API_URL is not reaching the Render backend.`);
+      } else {
+        setError(err.response?.data?.message || 'Invalid email or password.');
+      }
     } finally {
       setLoading(false);
     }
