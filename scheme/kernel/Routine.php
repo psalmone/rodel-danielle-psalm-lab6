@@ -487,6 +487,8 @@ if ( ! function_exists('handle_cors'))
 			header("Access-Control-Allow-Origin: {$origin}");
 			header('Access-Control-Allow-Credentials: true');
 			header('Vary: Origin');
+		} elseif ($allow_origin === '*') {
+			header("Access-Control-Allow-Origin: *");
 		}
 
 		header(

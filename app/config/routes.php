@@ -57,4 +57,13 @@ $router->get('/products',                 'Products::index');
 $router->get('/products/show/{id}',       'Products::show');
 $router->post('/products/store',          'Products::store');
 $router->put('/products/update/{id}',     'Products::update');
-$router->delete('/products/destroy/{id}', 'Products::destroy');
+$router->delete('/products/destroy/{id}', 'Products::destroy');
+
+// ── Migration Routes ──────────────────────────────────────
+$router->get('create-migration/{migration_class}', 'MigrationController::create_migration');
+$router->get('migrate', 'MigrationController::migrate');
+$router->get('rollback', 'MigrationController::rollback');
+$router->get('rollback-all', 'MigrationController::rollback_all');
+$router->get('refresh', 'MigrationController::refresh');
+$router->get('status', 'MigrationController::status');
+

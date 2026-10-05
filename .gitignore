@@ -24,3 +24,7 @@ runtime/*
 
 # OS
 Thumbs.db
+
+# Test scripts
+test_*.php
+fix_table.php

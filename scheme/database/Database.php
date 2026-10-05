@@ -270,8 +270,10 @@ class Database {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,
         );
-        if ($host !== '127.0.0.1' && $host !== 'localhost' && file_exists($ca_cert)) {
-            $options[PDO::MYSQL_ATTR_SSL_CA] = $ca_cert;
+        if ($host !== '127.0.0.1' && $host !== 'localhost') {
+            if (file_exists($ca_cert)) {
+                $options[PDO::MYSQL_ATTR_SSL_CA] = $ca_cert;
+            }
             $options[PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT] = false;
         }
 
